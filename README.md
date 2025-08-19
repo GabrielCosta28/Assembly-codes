@@ -1,2 +1,2 @@
 # Assembly-codes
-Projects in assembly made by myself 
+This reposirtory contains some of my assembly projects 
