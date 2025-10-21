@@ -1,0 +1,134 @@
+
+
+TITLE matriz_4x4_soma
+.MODEL SMALL
+.STACK 100h
+
+.DATA
+    msg1 db 13,10, "Digite os 16 numeros da matriz (0 a 6): $"
+    msg2 db 13,10, "Matriz lida: $"
+    msg3 db 13,10, "Soma dos elementos: $"
+    matriz db 16 dup(?)
+    soma db ?
+
+.CODE
+main PROC
+    mov ax, @data
+    mov ds, ax
+
+    ; Lê a matriz
+    call ler_matriz
+
+    ; Imprime a matriz
+    call printar_matriz
+
+    ; Soma os elementos
+    call somar_matriz
+
+    ; Exibe a soma
+    mov ah, 09h
+    lea dx, msg3
+    int 21h
+
+    mov al, soma
+    add al, 30h
+    mov dl, al
+    mov ah, 02h
+    int 21h
+
+    ; Encerrar
+    mov ah, 4Ch
+    int 21h
+main ENDP
+
+
+;====================================================
+; Procedimento: ler_matriz
+; Lê 16 números do teclado (0 a 6) e guarda em 'matriz'
+; Usa SI como índice
+;====================================================
+ler_matriz PROC
+    mov ah, 09h
+    lea dx, msg1
+    int 21h
+
+    xor si, si
+    mov cl, 16
+
+ler_loop:
+    mov ah, 01h        ; leitura de caractere
+    int 21h
+    and al, 0Fh        ; converte ASCII -> número
+    mov matriz[si], al
+    inc si
+    dec cl
+    jnz ler_loop
+    ret
+ler_matriz ENDP
+
+
+;====================================================
+; Procedimento: printar_matriz
+; Mostra a matriz formatada (4x4)
+; Usa SI como índice
+;====================================================
+printar_matriz PROC
+    mov ah, 09h
+    lea dx, msg2
+    int 21h
+
+    xor si, si
+    mov cx, 4     ; 4 linhas
+
+linha_loop:
+    mov bx, 4     ; 4 colunas
+
+coluna_loop:
+    mov al, matriz[si]
+    add al, 30h       ; converte para ASCII
+    mov dl, al
+    mov ah, 02h
+    int 21h
+
+    mov dl, ' '       ; espaço entre números
+    mov ah, 02h
+    int 21h
+
+    inc si
+    dec bx
+    jnz coluna_loop
+
+    ; Quebra de linha
+    mov dl, 13
+    mov ah, 02h
+    int 21h
+    mov dl, 10
+    mov ah, 02h
+    int 21h
+
+    loop linha_loop
+    ret
+printar_matriz ENDP
+
+
+;====================================================
+; Procedimento: somar_matriz
+; Soma todos os 16 elementos e armazena em 'soma'
+; Usa SI como índice
+;====================================================
+somar_matriz PROC
+    xor si, si
+    xor al, al
+    mov cl, 16
+
+soma_loop:
+    add al, matriz[si]
+    inc si
+    dec cl
+    jnz soma_loop
+
+    mov soma, al
+    ret
+somar_matriz ENDP
+
+END main
